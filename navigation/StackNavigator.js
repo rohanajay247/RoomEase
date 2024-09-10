@@ -6,11 +6,11 @@ import {
 } from "@react-navigation/stack";
 import HomeScreen from "../screens/HomeScreen";
 import ChatScreen from "../screens/ChatScreen";
+import InterestScreen from "../screens/InterestScreen";
 import LoginScreen from "../screens/LoginScreen";
 import ModalScreen from "../screens/ModalScreen";
 import useAuth from "../hooks/useAuth";
 import MatchScreen from "../screens/MatchScreen";
-import MessagesScreen from "../screens/MessageScreen";
 import MessageScreen from "../screens/MessageScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 
@@ -32,6 +32,7 @@ const StackNavigator = () => {
             <Stack.Screen name="Chat" component={ChatScreen} />
             <Stack.Screen name="Message" component={MessageScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
+            <Stack.Screen name="Interest" component={InterestScreen} />
           </Stack.Group>
           <Stack.Group
             screenOptions={{

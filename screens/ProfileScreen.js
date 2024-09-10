@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Make sure to install this package
 
 const ProfileDetailsScreen = () => {
+  const navigation = useNavigation();
+  
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -35,6 +38,12 @@ const ProfileDetailsScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Profile Details</Text>
+
+    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+      <Icon name="arrow-back" size={24} color="#4B0082" />
+    </TouchableOpacity>
+
+
       <View style={styles.photoButton}>
         <TouchableOpacity onPress={handlePhotoUpload}>
           {photo ? (
@@ -149,6 +158,7 @@ const ProfileDetailsScreen = () => {
         <Text style={styles.uploadFileText}>Upload Digital Copy of Aadhar</Text>
       </TouchableOpacity>
 
+
       <TouchableOpacity style={styles.submitButton} onPress={() => {/* Add submit logic */}}>
         <Text style={styles.submitButtonText}>Submit</Text>
       </TouchableOpacity>
@@ -234,6 +244,12 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     color: '#4B0082',
     fontSize: 16,
+  },
+  backButton: {
+    position: 'absolute',   
+    top: 80,                
+    left: 10,               
+    zIndex: 20,             
   },
   submitButton: {
     backgroundColor: '#4B0082', // Purple background for submit button

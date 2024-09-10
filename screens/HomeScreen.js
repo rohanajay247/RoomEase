@@ -1,11 +1,4 @@
-import {
-  Button,
-  Image,
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import {Button,Image,SafeAreaView,Text,TouchableOpacity,View,} from "react-native";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { useNavigation } from "@react-navigation/native";
@@ -13,17 +6,9 @@ import tw from "tailwind-react-native-classnames";
 import { AntDesign, Entypo, Ionicons } from "@expo/vector-icons";
 import Swiper from "react-native-deck-swiper";
 import { db, timestamp } from "../firebase";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  onSnapshot,
-  query,
-  setDoc,
-  where,
-} from "firebase/firestore";
+import {collection,doc,getDoc,getDocs,onSnapshot,query,setDoc,where,} from "firebase/firestore";
 import generateId from "../lib/generateId";
+import RenderCard from "./Components/RenderCard";
 
 const DUMMY_DATA = [
   {
@@ -32,6 +17,7 @@ const DUMMY_DATA = [
     photoURL:
       "https://static1.bigstockphoto.com/7/7/4/large1500/477855169.jpg",
     age: 23,
+    distance: "5kms",
     id: 1,
   },
   {
@@ -195,13 +181,15 @@ const HomeScreen = () => {
   };
 
   return (
-    <SafeAreaView style={tw.style("flex-1 mt-6")}>
+    <SafeAreaView style={tw.style("flex-1 mt-16")}>
       <View style={tw.style("flex-row items-center justify-between px-5")}>
       <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-          <Image
+        {/* Code acting weird */}
+      <Ionicons name="person-circle-outline" size={30} color="#4B0082" /> 
+          {/* <Image
             style={tw.style("h-10 w-10 rounded-full")}
             source={require("../assets/purple_usericon.png")}
-          />
+          /> */}
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("Modal")}>
           <Image
@@ -209,6 +197,13 @@ const HomeScreen = () => {
             source={require("../assets/RoomEaseLogo.jpeg")}
           />
         </TouchableOpacity>
+
+        {/* code acting weird */}
+         {/* New Cloud Logo */}
+        <TouchableOpacity onPress={() => navigation.navigate("Interest")}>
+        <Ionicons name="star" size={30} color="#4B0082" />
+        </TouchableOpacity>
+
 
         <TouchableOpacity onPress={() => navigation.navigate("Chat")}>
           <Ionicons name="chatbubbles-sharp" size={30} color="#4B0082" />
@@ -221,7 +216,7 @@ const HomeScreen = () => {
           containerStyle={{
             backgroundColor: "transparent",
           }}
-          cards={profiles}
+          cards={DUMMY_DATA}
           stackSize={5}
           cardIndex={0}
           animateCardOpacity
@@ -256,29 +251,7 @@ const HomeScreen = () => {
           }}
           renderCard={(card) => {
             return card ? (
-              <View
-                key={card.id}
-                style={tw.style("bg-white h-3/4 rounded-xl relative")}
-              >
-                <Image
-                  style={tw.style("absolute top-0 h-full w-full rounded-xl")}
-                  source={{ uri: card.photoURL }}
-                />
-
-                <View
-                  style={tw.style(
-                    "absolute bottom-0 bg-white w-full h-20 justify-between items-center flex-row px-6 py-2 rounded-b-xl shadow-xl"
-                  )}
-                >
-                  <View>
-                    <Text style={tw.style("text-xl font-bold")}>
-                      {card.displayName}
-                    </Text>
-                    <Text>{card.job}</Text>
-                  </View>
-                  <Text style={tw.style("text-2xl font-bold")}>{card.age}</Text>
-                </View>
-              </View>
+              <RenderCard card={card} />
             ) : (
               <View
                 style={tw.style(
@@ -300,7 +273,7 @@ const HomeScreen = () => {
         />
       </View>
 
-      <View style={tw.style("flex flex-row justify-evenly mb-20")}>
+      <View style={tw.style("flex flex-row justify-evenly mb-14")}>
         <TouchableOpacity
           onPress={() => swipeRef.current.swipeLeft()}
           style={tw.style(
