@@ -13,6 +13,11 @@ import useAuth from "../hooks/useAuth";
 import MatchScreen from "../screens/MatchScreen";
 import MessageScreen from "../screens/MessageScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import QuestionScreen from "../screens/QuestionScreen";
+import LocationScreen from "../screens/LocationScreen";
+import RoomLocation from "../screens/RoomLocation";
+import RoomDetails from "../screens/RoomDetails";
+import RoomPhotoUploadScreen from "../screens/RoomPhotoUploadScreen";
 
 const Stack = createStackNavigator();
 
@@ -33,6 +38,15 @@ const StackNavigator = () => {
             <Stack.Screen name="Message" component={MessageScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen name="Interest" component={InterestScreen} />
+            <Stack.Screen name="Question" component={QuestionScreen} />
+            <Stack.Screen name="Location" component={LocationScreen} />
+            <Stack.Screen name="RoomLocation" component={RoomLocation} />
+            <Stack.Screen name="RoomDetails" component={RoomDetails} />
+            <Stack.Screen name="RoomPhoto" component={RoomPhotoUploadScreen} />
+
+
+
+            
           </Stack.Group>
           <Stack.Group
             screenOptions={{

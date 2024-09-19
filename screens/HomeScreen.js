@@ -45,14 +45,6 @@ const HomeScreen = () => {
   const swipeRef = useRef(null);
 
   useLayoutEffect(() => {
-    // const unsubscribe = onSnapshot(doc(db, "users", user.uid), (snapShot) => {
-    //   console.log(snapShot.data());
-    //   if (!snapShot.exists()) {
-    //     navigation.navigate("Modal");
-    //   }
-    // });
-
-    // return unsubscribe();
     getDoc(doc(db, "users", user.uid)).then((snapShot) => {
       if (!snapShot.exists()) {
         navigation.navigate("Modal");
@@ -64,8 +56,6 @@ const HomeScreen = () => {
     let unsub;
 
     const fetchCards = async () => {
-      //comes after doing passes in swipeleft
-
       const passes = await getDocs(
         collection(db, "users", user.uid, "passes")
       ).then((snapShot) => snapShot.docs.map((doc) => doc.id));
@@ -95,19 +85,6 @@ const HomeScreen = () => {
           );
         }
       );
-
-      //comes before doing passes in swipeleft
-
-      // unsub = onSnapshot(collection(db, "users"), (snapShot) => {
-      //   setProfiles(
-      //     snapShot.docs
-      //       .filter((doc) => doc.id !== user.uid)
-      //       .map((doc) => ({
-      //         id: doc.id,
-      //         ...doc.data(),
-      //       }))
-      //   );
-      // });
     };
 
     fetchCards();
@@ -125,14 +102,6 @@ const HomeScreen = () => {
   };
 
   const swipeRight = async (cardIndex) => {
-    // if (!profiles[cardIndex]) {
-    //   return;
-    // }
-
-    // const userSwiped = profiles[cardIndex];
-
-    // setDoc(doc(db, "users", user.uid, "swipes", userSwiped.id), userSwiped);
-
     try {
       if (!profiles[cardIndex]) {
         return;
@@ -182,34 +151,6 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={tw.style("flex-1 mt-16")}>
-      <View style={tw.style("flex-row items-center justify-between px-5")}>
-      <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-        {/* Code acting weird */}
-      <Ionicons name="person-circle-outline" size={30} color="#4B0082" /> 
-          {/* <Image
-            style={tw.style("h-10 w-10 rounded-full")}
-            source={require("../assets/purple_usericon.png")}
-          /> */}
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("Modal")}>
-          <Image
-            style={tw.style("h-14 w-20")}
-            source={require("../assets/RoomEaseLogo.jpeg")}
-          />
-        </TouchableOpacity>
-
-        {/* code acting weird */}
-         {/* New Cloud Logo */}
-        <TouchableOpacity onPress={() => navigation.navigate("Interest")}>
-        <Ionicons name="star" size={30} color="#4B0082" />
-        </TouchableOpacity>
-
-
-        <TouchableOpacity onPress={() => navigation.navigate("Chat")}>
-          <Ionicons name="chatbubbles-sharp" size={30} color="#4B0082" />
-        </TouchableOpacity>
-      </View>
-
       <View style={tw.style("flex-1 -mt-6")}>
         <Swiper
           ref={swipeRef}
@@ -273,7 +214,7 @@ const HomeScreen = () => {
         />
       </View>
 
-      <View style={tw.style("flex flex-row justify-evenly mb-14")}>
+      <View style={tw.style("flex flex-row justify-evenly mb-5")}>
         <TouchableOpacity
           onPress={() => swipeRef.current.swipeLeft()}
           style={tw.style(
@@ -289,6 +230,24 @@ const HomeScreen = () => {
           )}
         >
           <Entypo name="check" size={24} color="indigo" />
+        </TouchableOpacity>
+      </View>
+
+      <View style={tw.style("flex-row items-center justify-between px-5 pb-5")}>
+        <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+          <Ionicons name="person-circle-outline" size={30} color="#4B0082" />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate("Interest")}>
+          <Ionicons name="star" size={30} color="#4B0082" />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate("Chat")}>
+          <Ionicons name="chatbubbles-sharp" size={30} color="#4B0082" />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate("Question")}>
+          <Ionicons name="flash" size={30} color="#4B0082" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
