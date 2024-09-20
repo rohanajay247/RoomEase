@@ -39,7 +39,8 @@ const InterestScreen = () => {
       <Icon name="arrow-back" size={24} color="#4B0082" />
     </TouchableOpacity>
       <Text style={styles.title}>Select your interests!</Text>
-      <Text style={styles.subtitle}>Pick the things you love, it will help to find the ideal roommate!</Text>
+      <Text style={styles.subtext}>Pick the things you love, it will help to find the ideal roommate!</Text>
+      <Text style={styles.sectionTitle}>Hobbies</Text>
       
       <ScrollView style={styles.interestsContainer}>
         <View style={styles.interestsSection}>
@@ -128,7 +129,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#4B0082',
-    textAlign: 'center',
+    textAlign: 'left',
     marginTop: 50,
     marginBottom: 10,
   },

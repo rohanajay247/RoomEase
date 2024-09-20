@@ -18,6 +18,7 @@ import LocationScreen from "../screens/LocationScreen";
 import RoomLocation from "../screens/RoomLocation";
 import RoomDetails from "../screens/RoomDetails";
 import RoomPhotoUploadScreen from "../screens/RoomPhotoUploadScreen";
+import StartScreen from "../screens/StartScreen";
 
 const Stack = createStackNavigator();
 
@@ -33,6 +34,7 @@ const StackNavigator = () => {
       {user ? (
         <>
           <Stack.Group>
+            <Stack.Screen name="Start" component={StartScreen} />
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="Chat" component={ChatScreen} />
             <Stack.Screen name="Message" component={MessageScreen} />
