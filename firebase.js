@@ -10,12 +10,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyD_PXnZUFn91tO7Sq2MsNcaeNrMe041QAQ",
-  authDomain: "tinder-rn-clone-a8f3a.firebaseapp.com",
-  projectId: "tinder-rn-clone-a8f3a",
+  apiKey: "AIzaSyCfS_PbdxBmAARxnC5rFJMW_0DixkGTBbk",
+  authDomain: "roomease-a3e9d.firebaseapp.com",
+  projectId: "roomease-a3e9d",
   storageBucket: "tinder-rn-clone-a8f3a.appspot.com",
-  messagingSenderId: "182267831536",
-  appId: "1:182267831536:web:1f090e2c33a0f1a8fc8e35",
+  messagingSenderId: "1049431901553",
+  appId: "1:1049431901553:android:18bf402808cfae7e38a2d0",
 };
 
 // Initialize Firebase

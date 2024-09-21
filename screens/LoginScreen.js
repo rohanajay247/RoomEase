@@ -37,6 +37,7 @@ const LoginScreen = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         setLoading(false);
+        navigation.navigate('Home');
       })
       .catch((error) => {
         setLoading(false);
@@ -52,6 +53,7 @@ const LoginScreen = () => {
       .then(({ user }) => {
         updateProfile(user, { displayName: name });
         setLoading(false);
+        navigation.navigate('Profile')
       })
       .catch((error) => {
         const errorCode = error.code;

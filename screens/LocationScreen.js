@@ -20,7 +20,7 @@ const LocationScreen = () => {
 
   const handleNext = () => {
     // Navigate to the next screen or process the selected location
-    navigation.navigate('Home', { selectedLocation });
+    navigation.navigate('Interest');
   };
 
   return (

@@ -166,7 +166,10 @@ const ProfileDetailsScreen = () => {
         </TouchableOpacity>
       </ScrollView>
 
-      <TouchableOpacity style={styles.nextButton} onPress={() => {/* Add submit logic */}}>
+      <TouchableOpacity style={styles.nextButton} onPress={() => {
+        navigation.navigate('Question')
+      }}>
+        
         <Text style={styles.nextButtonText}>Next</Text>
       </TouchableOpacity>
     </SafeAreaView>

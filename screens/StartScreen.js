@@ -6,7 +6,7 @@ const StartScreen = () => {
     const navigation = useNavigation();
 
     const handleGetStarted = () => {
-        navigation.navigate('Home');
+        navigation.navigate('Login');
     };
 
   return (
@@ -33,10 +33,12 @@ const StartScreen = () => {
           <Text style={styles.buttonText}>Get Started</Text>
         </TouchableOpacity>
         
-        <Text style={styles.signUpText}>
+        {/* <Text style={styles.signUpText}>
           Don't have an account?{' '}
+          <TouchableOpacity onPress={()=> navigation.navigate('Login',{type: 2})}>
           <Text style={styles.signUpLink}>Sign Up</Text>
-        </Text>
+          </TouchableOpacity>
+        </Text> */}
       </View>
     </View>
   );

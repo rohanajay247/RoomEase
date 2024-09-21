@@ -102,7 +102,7 @@ const InterestScreen = () => {
       <Text style={styles.footerText}>You can always update this later.</Text>
 
       {/* Next button */}
-      <TouchableOpacity style={styles.nextButton} onPress={() => console.log('Next pressed')}>
+      <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate('Home')}>
         <Text style={styles.nextButtonText}>Next</Text>
       </TouchableOpacity>
     </SafeAreaView>

@@ -157,7 +157,7 @@ const HomeScreen = () => {
           containerStyle={{
             backgroundColor: "transparent",
           }}
-          cards={DUMMY_DATA}
+          cards={profiles}
           stackSize={5}
           cardIndex={0}
           animateCardOpacity

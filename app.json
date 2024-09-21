@@ -15,9 +15,11 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier":"com.rrc.RoomEase",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.rrc.RoomEase",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
