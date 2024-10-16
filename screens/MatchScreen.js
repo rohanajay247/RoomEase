@@ -9,7 +9,7 @@ const MatchScreen = () => {
 
   const { loggedInProfile, userSwiped } = route.params;
   return (
-    <View style={tw.style("h-full bg-red-500 pt-20", { opacity: 0.89 })}>
+    <View style={tw.style("h-full pt-20", { backgroundColor: "#4B0082", opacity: 0.89 })}>
       <View style={tw.style("justify-center px-10 pt-20")}>
         <Image
           source={{
@@ -18,7 +18,11 @@ const MatchScreen = () => {
           style={tw.style("h-20 w-full")}
         />
         <Text style={tw.style("text-white text-center mt-5")}>
-          You and {userSwiped.displayName} have liked each other
+          You and {userSwiped.displayName} swiped on each other's profile
+        </Text>
+
+        <Text style={tw.style("text-white text-center mt-5")}>
+        Send a message to communicate further about properties, locations, and next steps."
         </Text>
 
         <View style={tw.style("flex-row justify-evenly mt-5")}>

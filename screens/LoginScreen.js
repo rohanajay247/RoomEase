@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert , StyleSheet} from "react-native";
 import React, { useLayoutEffect, useState } from "react";
 import tw from "tailwind-react-native-classnames";
 import {
@@ -6,10 +6,18 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
+import Ionicons from "react-native-vector-icons/Ionicons"
 import { auth } from "../firebase";
 import useAuth from "../hooks/useAuth";
 import { useNavigation } from "@react-navigation/native";
 import { ImageBackground } from "react-native";
+
+const colors = {
+  primary: "#4B0082",  // Updated to indigo
+  secondary: "#4B0082",  // Updated to indigo
+  white: "#FFFFFF",
+  gray: "#808080",
+};
 
 const LoginScreen = () => {
   const [type, setType] = useState(1); //1.signin 2.signup
@@ -17,7 +25,7 @@ const LoginScreen = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [secureEntry, setSecureEntry] = useState(true);
   const { loading, setLoading } = useAuth();
 
   const navigation = useNavigation();
@@ -27,6 +35,27 @@ const LoginScreen = () => {
       headerShown: false,
     });
   }, []);
+
+  const handleGoBack=()=>{
+    navigation.goBack();
+  };
+
+  const handleForgotPassword = async () => {
+    if (email.trim() === "") {
+      return Alert.alert("Ohhh!!", "You have not entered your email");
+    }
+    setLoading(true);
+    try{
+    await auth.sendPasswordResetEmail(email)
+      .then(() => {
+        setLoading(false);
+        Alert.alert("Success", "Password reset email sent successfully");
+      })}
+      catch(error) {
+        setLoading(false);
+        Alert.alert("Error", error.message);
+      };
+  };
 
   const signIn = () => {
     if (email.trim() === "" || password.trim === "") {
@@ -77,104 +106,202 @@ const LoginScreen = () => {
     <ImageBackground
       style={tw.style("flex-1")}
       resizeMode="cover"
-      source={require("../assets/purple_bg.jpg")}
     >
       {type === 1 ? (
-        <View style={tw.style("flex-1 justify-center items-center")}>
-          <Text style={tw.style("font-bold text-2xl text-white bg-black rounded-lg p-1.5")}>Sign In</Text>
-          <Text style={tw.style("text-white font-semibold")}>
-            Access to your account
-          </Text>
-          <View style={tw.style("w-full p-5")}>
-            <Text style={tw.style("font-semibold pb-2 text-white")}>Email</Text>
-            <TextInput
-              keyboardType="email-address"
-              style={tw.style(
-                "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 mb-4"
-              )}
+            <View style={styles.container}>
+            <TouchableOpacity style={styles.backButtonWrapper} onPress={handleGoBack}>
+              <Ionicons name ={"arrow-back-outline"} color={colors.primary} size={30}/>
+              </TouchableOpacity>
+          <View style={styles.textContainer}>
+          <Text style={styles.Headingtext}>Hey,</Text>
+          <Text style={styles.Headingtext}>Welcome</Text>
+          <Text style={styles.Headingtext}>Back</Text>
+          </View>
+          <View style={styles.formContainer}>
+            <View style={styles.inputContainer}>
+              <Ionicons name={"person"} size={30} color={colors.gray}/>
+              <TextInput style={styles.textInput} 
+              placeholder='Enter your Email'
+              placeholderTextColor={colors.gray}
               value={email}
               onChangeText={(text) => setEmail(text)}
-            />
-            <Text style={tw.style("font-semibold pb-2 text-white")}>
-              Password
-            </Text>
-            <TextInput
-              keyboardType="default"
-              secureTextEntry={true}
-              style={tw.style(
-                "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5"
-              )}
+              />
+            </View>
+            <View style={styles.formContainer}>
+            <View style={styles.inputContainer}>
+              <Ionicons name={"lock-closed"} size={30} color={colors.gray}/>
+              <TextInput style={styles.textInput} 
+              placeholder='Enter your password'
+              placeholderTextColor={colors.gray}
+              secureTextEntry={secureEntry}
               value={password}
-              onChangeText={(text) => setPassword(text)}
-            />
-            <TouchableOpacity
-              style={tw.style("w-full rounded-lg mt-8 bg-black py-3")}
-              onPress={signIn}
-            >
-              <Text style={tw.style("text-center text-white font-bold")}>
-                Sign In
-              </Text>
+              onChangeText={(text) => setPassword(text)}/>
+              <TouchableOpacity
+              onPress={() => {
+                setSecureEntry((prev) => !prev);
+              }}
+              >
+                <Ionicons name={"eye"} size={20} color={colors.gray}/>
+              </TouchableOpacity>
+            </View>
+            </View>
+            <TouchableOpacity>
+              <Text style={styles.forgotText} onPress={handleForgotPassword}>Forgot Password</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setType(2)}>
-              <Text style={tw.style("text-center text-gray-100 pt-3")}>
-                Don't have an account?
-              </Text>
+            <TouchableOpacity style={styles.loginButtonWrapper} onPress={signIn}>
+              <Text style={styles.loginText}>Login</Text>
             </TouchableOpacity>
+          <View style={styles.footerText}>
+            <Text style={styles.accountText}>Don't have an Account?</Text>
+            <Text style={styles.signUpText} onPress={()=> setType(2)}>Register</Text>
           </View>
-        </View>
+          </View>
+      
+          </View>
       ) : (
-        <View style={tw.style("flex-1 justify-center items-center")}>
-          <Text style={tw.style("font-bold text-2xl")}>Sign Up</Text>
-          <Text style={tw.style("text-white")}>Create a new account</Text>
-          <View style={tw.style("w-full p-5")}>
-            <Text style={tw.style("font-semibold pb-2 text-white")}>Name</Text>
-            <TextInput
-              keyboardType="default"
-              style={tw.style(
-                "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 mb-4"
-              )}
-              value={name}
-              onChangeText={(text) => setName(text)}
-            />
-            <Text style={tw.style("font-semibold pb-2 text-white")}>Email</Text>
-            <TextInput
-              keyboardType="email-address"
-              style={tw.style(
-                "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 mb-4"
-              )}
-              value={email}
-              onChangeText={(text) => setEmail(text)}
-              secureTextEntry={false}
-            />
-            <Text style={tw.style("font-semibold pb-2 text-white")}>
-              Password
-            </Text>
-            <TextInput
-              secureTextEntry={true}
-              style={tw.style(
-                "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5"
-              )}
-              value={password}
-              onChangeText={(text) => setPassword(text)}
-            />
-            <TouchableOpacity
-              style={tw.style("w-full rounded-lg mt-8 bg-black py-3")}
-              onPress={signUp}
-            >
-              <Text style={tw.style("text-center text-white font-bold")}>
-                Sign Up
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setType(1)}>
-              <Text style={tw.style("text-center text-gray-100 pt-3")}>
-                Already have an account?
-              </Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.container}>
+        <TouchableOpacity style={styles.backButtonWrapper} onPress={handleGoBack}>
+          <Ionicons name ={"arrow-back-outline"} color={colors.primary} size={30}/>
+          </TouchableOpacity>
+      <View style={styles.textContainer}>
+      <Text style={styles.Headingtext}>Let's Get</Text>
+      <Text style={styles.Headingtext}>Started</Text>
+      </View>
+      <View style={styles.formContainer}>
+      <View style={styles.inputContainer}>
+          <Ionicons name={"person"} size={30} color={colors.gray}/>
+          <TextInput style={[styles.textInput, styles.type2Input]} 
+          placeholder='Enter your Name'
+          placeholderTextColor={colors.gray}
+          value={name}
+          onChangeText={(text) => setName(text)}/>
         </View>
+        </View>
+        <View style={styles.formContainer}>
+        <View style={styles.inputContainer}>
+          <Ionicons name={"person"} size={30} color={colors.gray}/>
+          <TextInput style={styles.textInput} 
+          placeholder='Enter your Email'
+          placeholderTextColor={colors.gray}
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+          secureTextEntry={false}/>
+        </View>
+        </View>
+        <View style={styles.formContainer}>
+        <View style={styles.inputContainer}>
+          <Ionicons name={"lock-closed"} size={30} color={colors.gray}/>
+          <TextInput style={styles.textInput} 
+          placeholder='Enter your password'
+          placeholderTextColor={colors.gray}
+          secureTextEntry={secureEntry}
+          value={password}
+          onChangeText={(text) => setPassword(text)}/>
+          <TouchableOpacity
+          onPress={() => {
+            setSecureEntry((prev) => !prev);
+          }}
+          >
+            <Ionicons name={"eye"} size={20} color={colors.gray}/>
+          </TouchableOpacity>
+        </View>
+        </View>
+        <TouchableOpacity>
+          <Text style={styles.forgotText}>Forgot Password</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.loginButtonWrapper} onPress={signUp}>
+          <Text style={styles.loginText}>Sign Up</Text>
+        </TouchableOpacity>
+      <View style={styles.footerText}>
+        <Text style={styles.accountText}>Have an Account?</Text>
+        <Text style={styles.signUpText} onPress={() => setType(1)}>Login</Text>
+      </View>
+      </View>
+ 
       )}
     </ImageBackground>
   );
 };
 
 export default LoginScreen;
+
+const styles = StyleSheet.create({
+  container:{
+    flex:1,
+    backgroundColor:colors.white,
+    padding:20,
+  },
+  backButtonWrapper:{
+    height:40,
+    width:40,
+    backgroundColor:colors.gray,
+    borderRadius:20,
+    justifyContent:'center',
+    alignItems:'center',
+  },
+  textContainer:{
+    marginVertical:20,
+  },
+  Headingtext:{
+    fontSize:32,
+    color:colors.secondary,
+    fontWeight:"bold"
+  },
+  formContainer:{
+    marginTop:20,
+  },
+  inputContainer:{
+    borderWidth:1,
+    borderColor:colors.primary,
+    borderRadius:20,
+    paddingHorizontal:20,
+    flexDirection:'row',
+    alignItems:'center',
+    padding:2,
+  },
+  textInput:{
+    flex:1,
+    paddingHorizontal:10,
+    fontFamily:"System"
+  },
+    type2Input: {
+    // Add your custom styles for type2 input here // Example style
+    borderRadius: 10, // Example style
+  },
+  forgotText:{
+    textAlign:"right",
+    color:colors.primary,
+    marginVertical:10,
+  },
+  loginButtonWrapper:{
+    backgroundColor:colors.secondary,
+    borderRadius:100,
+    marginVertical:10,
+  },
+  loginText:{
+    color:colors.white,
+    fontSize:20,
+    textAlign:'center',
+    padding:12,
+  },
+  continueText:{
+    marginVertical:20,
+    textAlign:'center',
+    fontSize:14,
+    color:colors.primary,
+    fontWeight:'bold'
+  },
+  footerText:{
+    flexDirection:'row',
+    justifyContent:'center',
+    alignItems:'center',
+    marginVertical:20,
+    gap:5,
+  },
+  accountText:{
+    color:colors.gray,
+  },
+  signUpText:{
+    color:colors.gray,
+  }
+});
