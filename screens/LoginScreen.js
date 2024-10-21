@@ -82,7 +82,7 @@ const LoginScreen = () => {
       .then(({ user }) => {
         updateProfile(user, { displayName: name });
         setLoading(false);
-        navigation.navigate('Profile')
+        navigation.navigate('Home')
       })
       .catch((error) => {
         const errorCode = error.code;

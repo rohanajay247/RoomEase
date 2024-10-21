@@ -1,43 +1,72 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import * as ImagePicker from 'react-native-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Make sure to install this package
+import { getAuth } from 'firebase/auth';
+import { updateDoc, doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase'; // Ensure you import your Firestore instance correctly
 
 const interestsList = [
-  'Art', 'Design', 'Photography', 'Camping', 'Makeup', 'Guitar', 
+  'Art', 'Design', 'Photography', 'Camping', 'Makeup', 'Guitar',
   'Reading', 'Collecting stamps', 'DIY projects', 'Meditation', 'Astronomy'
 ];
 
 const sportsList = [
   'Football', 'Baseball', 'Basketball', 'Swimming', 'Kabaddi', 'Tennis',
-  'MMA', 'Table tennis', 'Badminton', 'Cricket', 'Golf', 'Soccer', 
+  'MMA', 'Table tennis', 'Badminton', 'Cricket', 'Golf', 'Soccer',
   'Gym', 'Running', 'Yoga'
 ];
 
 const InterestScreen = () => {
   const [selectedInterests, setSelectedInterests] = useState([]);
   const navigation = useNavigation();
+  const auth = getAuth();
+  const user = auth.currentUser;
 
   const handleSelectInterest = (interest) => {
     setSelectedInterests(prevInterests => {
       if (prevInterests.includes(interest)) {
-        // If interest is already selected, remove it
         return prevInterests.filter(item => item !== interest);
       } else {
-        // If interest is not selected, add it
         return [...prevInterests, interest];
       }
     });
   };
 
+  const updateUserInterests = async () => {
+    if (!user) {
+      Alert.alert('Error', 'User not found');
+      return;
+    }
+
+    const userDocRef = doc(db, 'users', user.uid);
+    try {
+      // Fetch current interests to append new ones
+      const docSnap = await getDoc(userDocRef);
+      let existingInterests = [];
+      
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        existingInterests = data.interests || []; // Use existing interests or empty array
+      }
+
+      const updatedInterests = [...new Set([...existingInterests, ...selectedInterests])]; // Avoid duplicates
+
+      // Update Firestore with the new interests array
+      await updateDoc(userDocRef, { interests: updatedInterests });
+      Alert.alert('Success', 'Interests updated successfully');
+      navigation.navigate('Home');
+    } catch (err) {
+      Alert.alert('Error', err.message);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-      <Icon name="arrow-back" size={24} color="#4B0082" />
-    </TouchableOpacity>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Icon name="arrow-back" size={24} color="#4B0082" />
+      </TouchableOpacity>
       <Text style={styles.title}>Select your interests!</Text>
       <Text style={styles.subtext}>Pick the things you love, it will help to find the ideal roommate!</Text>
       <Text style={styles.sectionTitle}>Hobbies</Text>
@@ -60,7 +89,7 @@ const InterestScreen = () => {
             </TouchableOpacity>
           ))}
         </View>
-        
+
         <Text style={styles.sectionTitle}>Sports</Text>
         <View style={styles.interestsSection}>
           {sportsList.map((sport, index) => (
@@ -81,7 +110,6 @@ const InterestScreen = () => {
         </View>
       </ScrollView>
 
-      {/* Display selected interests */}
       {selectedInterests.length > 0 && (
         <View style={styles.selectedInterestsContainer}>
           <Text style={styles.selectedInterestsTitle}>Your Interests are:</Text>
@@ -101,8 +129,7 @@ const InterestScreen = () => {
 
       <Text style={styles.footerText}>You can always update this later.</Text>
 
-      {/* Next button */}
-      <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate('Home')}>
+      <TouchableOpacity style={styles.nextButton} onPress={updateUserInterests}>
         <Text style={styles.nextButtonText}>Next</Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -121,10 +148,6 @@ const styles = StyleSheet.create({
     left: 20,
     zIndex: 1,
   },
-  backButtonText: {
-    color: '#000',
-    fontSize: 24,
-  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -132,12 +155,6 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginTop: 50,
     marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#000',
-    textAlign: 'center',
-    marginBottom: 20,
   },
   interestsContainer: {
     marginBottom: 20,
@@ -171,7 +188,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   selectedInterestButtonText: {
-    color: '#4B0082',
+    color: '#fff',
   },
   selectedInterestsContainer: {
     marginBottom: 20,
@@ -208,7 +225,7 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     color: '#fff',
-    fontSize:18,
+    fontSize: 18,
     fontWeight: 'bold',
   },
 });

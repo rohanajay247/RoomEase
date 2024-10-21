@@ -26,7 +26,7 @@ const RoomPhotoUploadScreen = () => {
   const handleNext = () => {
     // Handle navigation to next screen or form submission
     console.log('Photos:', photos);
-    navigation.navigate('Interest');
+    navigation.navigate('Home');
   };
 
   return (

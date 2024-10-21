@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ScrollView, SafeAreaView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ScrollView, SafeAreaView, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
-import * as ImagePicker from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker'; // Use Expo ImagePicker
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { getAuth } from 'firebase/auth';
+import { updateDoc, doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../firebase'; // Ensure you import db (your Firestore instance)
 
 const ProfileDetailsScreen = () => {
   const navigation = useNavigation();
-  
+  const auth = getAuth();
+  const user = auth.currentUser;
+
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -18,32 +23,99 @@ const ProfileDetailsScreen = () => {
   const [identityProof, setIdentityProof] = useState(null);
   const [photo, setPhoto] = useState(null);
 
-  const handlePhotoUpload = () => {
-    ImagePicker.launchImageLibrary({}, response => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorMessage) {
-        console.log('ImagePicker Error: ', response.errorMessage);
-      } else {
-        const source = { uri: response.assets[0].uri };
-        setPhoto(source);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (user) {
+        const docRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setName(data.name || '');
+          setPhone(data.phone || '');
+          setEmail(data.email || '');
+          setDateOfBirth(data.dateOfBirth || '');
+          setGender(data.gender || '');
+          setCountry(data.country || '');
+          setAddress(data.address || '');
+          setPhoto(data.photoURL ? { uri: data.photoURL } : null);
+          setIdentityProof(data.identityProof ? { uri: data.identityProof } : null);
+        }
       }
+    };
+
+    fetchData();
+  }, [user]);
+
+  const handlePhotoUpload = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1], // Square photo
+      quality: 1,
     });
+
+    if (!result.canceled) {
+      setPhoto({ uri: result.assets[0].uri });
+    }
   };
 
-  const handleFileUpload = () => {
-    // Logic for file upload
+  const handleFileUpload = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setIdentityProof({ uri: result.assets[0].uri });
+    }
+  };
+
+  const updateUserProfile = async () => {
+    if (!user) {
+      Alert.alert('Error', 'User not found');
+      return;
+    }
+
+    const userDocRef = doc(db, 'users', user.uid);
+
+    const updatedData = {
+      photoURL: photo ? photo.uri : null, // Append new photo if available
+      identityProof: identityProof ? identityProof.uri : null, // Append new identity proof
+      name,
+      phone,
+      email,
+      dateOfBirth,
+      gender,
+      country,
+      address,
+      timestamp: new Date(),
+    };
+
+    try {
+      const docSnap = await getDoc(userDocRef);
+
+      if (docSnap.exists()) {
+        await updateDoc(userDocRef, updatedData);
+      } else {
+        await setDoc(userDocRef, updatedData, { merge: true });
+      }
+
+      navigation.navigate('Home');
+    } catch (err) {
+      Alert.alert('Error', err.message);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+      <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Home')}>
             <Icon name="arrow-back" size={24} color="#4B0082" />
           </TouchableOpacity>
         </View>
-
         <View style={styles.titleContainer}>
           <Text style={styles.title}>Profile Details</Text>
         </View>
@@ -166,10 +238,7 @@ const ProfileDetailsScreen = () => {
         </TouchableOpacity>
       </ScrollView>
 
-      <TouchableOpacity style={styles.nextButton} onPress={() => {
-        navigation.navigate('Question')
-      }}>
-        
+      <TouchableOpacity style={styles.nextButton} onPress={updateUserProfile}>
         <Text style={styles.nextButtonText}>Next</Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -177,6 +246,7 @@ const ProfileDetailsScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  // Same styles as your existing ProfileDetailsScreen
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -184,16 +254,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 20,
   },
-  header: {
-    marginBottom: 10,
-  },
-  backButton: {
-    padding: 5,
-  },
   titleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: 10,
   },
   title: {
@@ -201,15 +262,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4B0082',
   },
-  pageIndicator: {
-    fontSize: 16,
-    color: '#666',
-  },
   subtext: {
     fontSize: 16,
     color: '#666',
     marginBottom: 20,
-    lineHeight: 22,
   },
   inputContainer: {
     marginBottom: 15,
@@ -222,76 +278,66 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
-    borderColor: '#4B0082',
+    borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 10,
-    paddingHorizontal: 15,
-    backgroundColor: '#f5f5f5',
-    color: '#333',
+    paddingHorizontal: 10,
+    fontSize: 16,
   },
   pickerContainer: {
-    borderColor: '#4B0082',
+    borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 10,
-    backgroundColor: '#f5f5f5',
-    overflow: 'hidden',
   },
   picker: {
     height: 50,
   },
+  uploadFileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  uploadFileText: {
+    marginLeft: 10,
+    color: '#4B0082',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   uploadPhotoContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 130,
-    width: 130,
-    borderRadius: 65,
-    backgroundColor: '#f0f0f0',
+    height: 150,
+    width: 150,
+    borderRadius: 75,
+    backgroundColor: '#eee',
     marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#4B0082',
-    borderStyle: 'dashed',
   },
   uploadPhotoText: {
-    color: '#4B0082',
-    marginTop: 10,
-    textAlign: 'center',
+    color: '#666',
+    fontSize: 14,
   },
   photoButton: {
     alignItems: 'center',
     marginBottom: 20,
   },
   photo: {
-    width: 130,
-    height: 130,
-    borderRadius: 65,
+    height: 150,
+    width: 150,
+    borderRadius: 75,
+    resizeMode: 'cover',
     marginBottom: 20,
-  },
-  uploadFileContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderColor: '#4B0082',
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 15,
-    backgroundColor: '#f5f5f5',
-    marginBottom: 15,
-  },
-  uploadFileText: {
-    marginLeft: 10,
-    color: '#4B0082',
-    fontSize: 16,
   },
   nextButton: {
     backgroundColor: '#4B0082',
     padding: 15,
-    borderRadius: 25,
+    borderRadius: 10,
     margin: 20,
+    alignItems: 'center',
   },
   nextButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
     fontSize: 18,
-    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });
 

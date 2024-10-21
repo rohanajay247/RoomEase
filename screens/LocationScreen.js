@@ -3,9 +3,15 @@ import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity } from 'react-na
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { getAuth } from 'firebase/auth';
+import { updateDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase'; // Ensure this is your Firestore instance
 
 const LocationScreen = () => {
   const navigation = useNavigation();
+  const auth = getAuth();
+  const user = auth.currentUser;
+
   const [selectedLocation, setSelectedLocation] = useState('');
 
   const locations = [
@@ -18,9 +24,21 @@ const LocationScreen = () => {
     'Whitefield',
   ];
 
-  const handleNext = () => {
-    // Navigate to the next screen or process the selected location
-    navigation.navigate('Interest');
+  const handleNext = async () => {
+    if (!user) {
+      alert('User not found');
+      return;
+    }
+
+    try {
+      const userDocRef = doc(db, 'users', user.uid); // Document reference for the current user
+      await updateDoc(userDocRef, { Preferred_location_for_Stay: selectedLocation }); // Update the location field in Firestore
+
+      // Navigate to the next screen after saving the location
+      navigation.navigate('Home');
+    } catch (error) {
+      alert('Error updating location: ' + error.message);
+    }
   };
 
   return (
