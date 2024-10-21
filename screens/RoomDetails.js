@@ -1,17 +1,59 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
+import { getAuth } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase'; // Ensure you import your Firebase Firestore instance
 
 const RoomDetails = () => {
   const navigation = useNavigation();
+  const auth = getAuth();
+  const user = auth.currentUser;
+
   const [location, setLocation] = useState('');
   const [numRooms, setNumRooms] = useState('');
   const [otherDetails, setOtherDetails] = useState('');
 
-  const handleNext = () => {
-    // Navigate to the RoomPhoto screen with the entered data
-    navigation.navigate('RoomPhoto', { location, numRooms, otherDetails });
+  // Fetch existing room details data if any
+  useEffect(() => {
+    const fetchRoomDetails = async () => {
+      if (user) {
+        const roomDocRef = doc(db, 'rooms', user.uid);
+        const docSnap = await getDoc(roomDocRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setLocation(data.location || '');
+          setNumRooms(data.numRooms || '');
+          setOtherDetails(data.otherDetails || '');
+        }
+      }
+    };
+
+    fetchRoomDetails();
+  }, [user]);
+
+  const handleNext = async () => {
+    if (!user) {
+      Alert.alert('Error', 'User not found');
+      return;
+    }
+
+    const roomDocRef = doc(db, 'rooms', user.uid);
+
+    const roomData = {
+      location,
+      numRooms,
+      otherDetails,
+      timestamp: new Date(),
+    };
+
+    try {
+      await setDoc(roomDocRef, roomData, { merge: true });
+      navigation.navigate('RoomPhoto', { location, numRooms, otherDetails });
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
   };
 
   return (
@@ -28,9 +70,7 @@ const RoomDetails = () => {
       </View>
 
       <View style={styles.contentContainer}>
-        <Text style={styles.questionText}>
-          Add necessary details
-        </Text>
+        <Text style={styles.questionText}>Add necessary details</Text>
 
         <Text style={styles.label}>Location</Text>
         <TextInput
