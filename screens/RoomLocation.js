@@ -1,16 +1,71 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
+import { getAuth } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase'; // Ensure your Firebase Firestore instance is imported
 
 const RoomLocation = () => {
   const navigation = useNavigation();
+  const auth = getAuth();
+  const user = auth.currentUser;
+
   const [roomType, setRoomType] = useState('');
   const [address, setAddress] = useState('');
+  const [loading, setLoading] = useState(false); // Added loading state for async operations
 
-  const handleNext = () => {
-    // Navigate to the next screen or process the entered data
-    navigation.navigate('RoomDetails', { roomType, address });
+  useEffect(() => {
+    const fetchData = async () => {
+      if (user) {
+        try {
+          const docRef = doc(db, 'rooms', user.uid); // Using UID as document ID
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setRoomType(data.roomType || '');
+            setAddress(data.address || '');
+          }
+        } catch (error) {
+          Alert.alert('Error', 'Failed to fetch room data: ' + error.message);
+        }
+      }
+    };
+
+    fetchData();
+  }, [user]);
+
+  const handleNext = async () => {
+    if (!user) {
+      Alert.alert('Error', 'User not authenticated');
+      return;
+    }
+
+    if (!roomType || !address) {
+      Alert.alert('Error', 'Please fill out all fields');
+      return;
+    }
+
+    const roomData = {
+      roomType,
+      address,
+      timestamp: new Date(), // Saving the current timestamp for reference
+    };
+
+    try {
+      setLoading(true); // Start loading
+
+      const roomDocRef = doc(db, 'rooms', user.uid); // Using user's UID as the document ID
+      await setDoc(roomDocRef, roomData, { merge: true }); // Merge ensures existing data isn't overwritten
+
+      setLoading(false); // End loading
+
+      // Navigate to RoomDetails screen and pass the data
+      navigation.navigate('RoomDetails', { roomType, address });
+    } catch (error) {
+      setLoading(false);
+      Alert.alert('Error', 'Failed to save room data: ' + error.message);
+    }
   };
 
   return (
@@ -22,7 +77,7 @@ const RoomLocation = () => {
       </View>
 
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>Accomodation</Text>
+        <Text style={styles.title}>Accommodation</Text>
         <Text style={styles.pageIndicator}>1/3</Text>
       </View>
 
@@ -43,7 +98,9 @@ const RoomLocation = () => {
           style={[styles.option, roomType === 'Independent House' && styles.selectedOption]}
           onPress={() => setRoomType('Independent House')}
         >
-          <Text style={[styles.optionText, roomType === 'Independent House' && styles.selectedOptionText]}>Independent House</Text>
+          <Text style={[styles.optionText, roomType === 'Independent House' && styles.selectedOptionText]}>
+            Independent House
+          </Text>
         </TouchableOpacity>
 
         <Text style={styles.label}>Address:</Text>
@@ -61,12 +118,12 @@ const RoomLocation = () => {
         </View>
       </View>
 
-      <TouchableOpacity 
-        style={[styles.nextButton, (!roomType || !address) && styles.disabledButton]} 
+      <TouchableOpacity
+        style={[styles.nextButton, (!roomType || !address) && styles.disabledButton]}
         onPress={handleNext}
-        disabled={!roomType || !address}
+        disabled={!roomType || !address || loading} // Disabled while loading or if fields are incomplete
       >
-        <Text style={styles.nextButtonText}>Next</Text>
+        <Text style={styles.nextButtonText}>{loading ? 'Saving...' : 'Next'}</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
