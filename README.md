@@ -90,7 +90,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-**Rayan Agrawal**  
-Email: rayanagrwl@gmail.com 
-GitHub: [raywal](https://github.com/raywal)  
-LinkedIn: (https://www.linkedin.com/in/rayan-agrawal-324a0b22a/)
+*Rohan Ajay Varghese*  
+Email: rohanajay364@gmail.com
+GitHub: [rohanajay247](https://github.com/rohanajay247)  
+LinkedIn: (https://www.linkedin.com/in/rohan-ajay-varghese/)
